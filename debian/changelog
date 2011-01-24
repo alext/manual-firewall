@@ -1,0 +1,5 @@
+manual-firewall (0.1-1) unstable; urgency=low
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Ubuntu <alex@alexdev.unboxedconsulting.com>  Mon, 24 Jan 2011 14:38:20 +0000
