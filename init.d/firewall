@@ -1,0 +1,178 @@
+#! /bin/bash
+### BEGIN INIT INFO
+# Provides:          firewall
+# Required-Start:    $local_fs
+# Required-Stop:     $local_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      S 0 1 6
+# Short-Description: Custom Firewall
+# Description:       Loads in custom iptables rules
+### END INIT INFO
+
+# Author: Alex Tomlins <alex@tomlins.org.uk>
+#
+# Please remove the "Author" lines above and replace them
+# with your own name if you copy and modify this script.
+
+# Do NOT "set -e"
+
+# PATH should only include /usr/* if it runs after the mountnfs.sh script
+PATH=/usr/sbin:/usr/bin:/sbin:/bin
+DESC="Custom Firewall"
+NAME=firewall
+
+IPTABLES=/sbin/iptables
+
+RULES_FILE=/etc/firewall/rules
+STOPPED_RULES_FILE=""
+EXTRA_MODULES=""
+SHAPER_DEV=""
+SHAPER_UPLINK=""
+
+# Exit if the package is not installed
+[ -x "$IPTABLES" ] || exit 0
+
+# Read configuration variable file if it is present
+[ -r /etc/default/$NAME ] && . /etc/default/$NAME
+
+# Load the VERBOSE setting and other rcS variables
+[ -f /etc/default/rcS ] && . /etc/default/rcS
+
+# Define LSB log_* functions.
+# Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
+. /lib/lsb/init-functions
+
+#
+# Start the traffic Shaper
+#
+start_shaper()
+{
+	if [ -z "$SHAPER_DEV" ]; then
+		return 0
+	fi
+	if [ -z "$SHAPER_UPLINK" ]; then
+		echo "SHAPER_UPLINK not set"
+		return 1
+	fi
+	UPLINK=$SHAPER_UPLINK
+
+	# Clear out existing
+        tc qdisc del dev $SHAPER_DEV root    > /dev/null 2>&1
+	#tc qdisc del dev $SHAPER_DEV ingress > /dev/null 2>&1
+
+	# install root HTB, point default traffic to 1:20
+	tc qdisc add dev $SHAPER_DEV root handle 1: htb default 20 r2q 2
+
+	# shape everything at $UPLINK speed
+	tc class add dev $SHAPER_DEV parent 1: classid 1:1 htb \
+		rate ${UPLINK}kbit ceil ${UPLINK}kbit burst 15k
+
+	tc class add dev $SHAPER_DEV parent 1:1 classid 1:10 htb \
+		rate $(($UPLINK*8/10))kbit ceil ${UPLINK}kbit prio 1 burst 15k
+	tc class add dev $SHAPER_DEV parent 1:1 classid 1:20 htb \
+		rate $(($UPLINK/10))kbit ceil ${UPLINK}kbit prio 2 burst 15k
+	tc class add dev $SHAPER_DEV parent 1:1 classid 1:30 htb \
+		rate $(($UPLINK/10))kbit ceil ${UPLINK}kbit prio 3 burst 15k
+
+	# all get Stochastic Fairness:
+	tc qdisc add dev $SHAPER_DEV parent 1:10 handle 10: sfq perturb 10
+	tc qdisc add dev $SHAPER_DEV parent 1:20 handle 20: sfq perturb 10
+	tc qdisc add dev $SHAPER_DEV parent 1:30 handle 30: sfq perturb 10
+
+	### Filters start here...
+	#tc filter add dev $SHAPER_DEV parent 1:0 protocol ip prio 5 \
+	#	handle 1 fw classid 1:10
+	#tc filter add dev $SHAPER_DEV parent 1:0 protocol ip prio 5 \
+	#	handle 2 fw classid 1:20
+	#tc filter add dev $SHAPER_DEV parent 1:0 protocol ip prio 5 \
+	#	handle 3 fw classid 1:30
+}
+
+stop_shaper()
+{
+	if [ -z "$SHAPER_DEV" ]; then
+		return 0
+	fi
+        tc qdisc del dev $SHAPER_DEV root    > /dev/null 2>&1
+	#tc qdisc del dev $SHAPER_DEV ingress > /dev/null 2>&1
+}
+#
+# Function that starts the daemon/service
+#
+do_start()
+{
+	# Return
+	#   0 if daemon has been started
+	#   1 if daemon was already running
+	#   2 if daemon could not be started
+
+	# Load in rules
+	$IPTABLES-restore < $RULES_FILE
+	RETVAL=$?
+
+	for mod in $EXTRA_MODULES; do
+		modprobe $mod
+	done
+
+	start_shaper
+
+	return $RETVAL
+}
+
+#
+# Function that stops the daemon/service
+#
+do_stop()
+{
+	RETVAL=0
+	if [ -n "$STOPPED_RULES_FILE" ]; then
+		$IPTABLES-restore < $STOPPED_RULES_FILE	
+		RETVAL=$?
+	fi
+
+	stop_shaper
+
+	return $RETVAL
+}
+
+case "$1" in
+  start)
+	[ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$NAME"
+	do_start
+	case "$?" in
+		0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+		2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+	esac
+	;;
+  stop)
+	[ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$NAME"
+	do_stop
+	case "$?" in
+		0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+		2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+	esac
+	;;
+  restart|force-reload)
+	log_daemon_msg "Restarting $DESC" "$NAME"
+	do_stop
+	case "$?" in
+	  0|1)
+		do_start
+		case "$?" in
+			0) log_end_msg 0 ;;
+			1) log_end_msg 1 ;; # Old process is still running
+			*) log_end_msg 1 ;; # Failed to start
+		esac
+		;;
+	  *)
+	  	# Failed to stop
+		log_end_msg 1
+		;;
+	esac
+	;;
+  *)
+	echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload}" >&2
+	exit 3
+	;;
+esac
+
