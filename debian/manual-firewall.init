@@ -1,6 +1,6 @@
 #! /bin/bash
 ### BEGIN INIT INFO
-# Provides:          firewall
+# Provides:          manual-firewall
 # Required-Start:    $local_fs
 # Required-Stop:     $local_fs
 # Default-Start:     2 3 4 5
@@ -18,8 +18,8 @@
 
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
-DESC="Custom Firewall"
-NAME=firewall
+DESC="Manual Firewall"
+NAME=manual-firewall
 
 IPTABLES=/sbin/iptables
 
