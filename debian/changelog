@@ -1,5 +1,5 @@
-manual-firewall (0.1-1) unstable; urgency=low
+manual-firewall (0.1-1) lucid; urgency=low
 
-  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+  * Initial release.
 
- -- Ubuntu <alex@alexdev.unboxedconsulting.com>  Mon, 24 Jan 2011 14:38:20 +0000
+ -- Alex Tomlins <alex@tomlins.org.uk>  Mon, 24 Jan 2011 14:38:20 +0000

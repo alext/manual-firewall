@@ -1,13 +1,12 @@
 Source: manual-firewall
-Section: unknown
+Section: net
 Priority: extra
-Maintainer: Ubuntu <alex@alexdev.unboxedconsulting.com>
+Maintainer: Alex Tomlins <alex@tomlins.org.uk>
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: <insert the upstream URL, if relevant>
 
 Package: manual-firewall
 Architecture: all
-Depends: ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Depends: ${misc:Depends} iptables
+Suggests: iproute
+Description: A Manual firewall for people comfortable with writing iptables rules directly.
