@@ -1,3 +1,9 @@
+manual-firewall (0.1.1-1) lucid; urgency=low
+
+  * Renamed init script.
+
+ -- Alex Tomlins <alex@tomlins.org.uk>  Tue, 25 Jan 2011 17:00:43 +0000
+
 manual-firewall (0.1-1) lucid; urgency=low
 
   * Initial release.
