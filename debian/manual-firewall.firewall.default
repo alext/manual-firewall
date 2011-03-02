@@ -8,7 +8,7 @@
 #STOPPED_RULES_FILE=
 #
 #Extra kernel modules to load (space separated)
-EXTRA_MODULES="ip_nat_ftp ip_conntrack_ftp"
+#EXTRA_MODULES="ip_nat_ftp ip_conntrack_ftp"
 
 # Device to run traffic shaping on.
 #SHAPER_DEV=eth0
