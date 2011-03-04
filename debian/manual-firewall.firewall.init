@@ -42,6 +42,12 @@ SHAPER_UPLINK=""
 # Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
 . /lib/lsb/init-functions
 
+# Do nothing if the rules file doesn't exist
+if [ ! -f $RULES_FILE ]; then
+        log_warning_msg "Firewall not configured, skipping"
+        exit
+fi
+
 #
 # Start the traffic Shaper
 #

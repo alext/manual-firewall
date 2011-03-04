@@ -30,18 +30,18 @@
 :SoftDrop - [0:0]
 :SoftReject - [0:0]
 
--A INPUT -i lo -j ACCEPT 
+-A INPUT -i lo -j ACCEPT
 -A INPUT -i eth0 -j ext2fw
 
 ### From outside to firewall
--A ext2fw -m state --state RELATED,ESTABLISHED -j ACCEPT 
+-A ext2fw -m state --state RELATED,ESTABLISHED -j ACCEPT
 # SSH
--A ext2fw -p tcp -m tcp --dport 22 -j SSHLimit 
+-A ext2fw -p tcp -m tcp --dport 22 -j SSHLimit
 # Web
 #-A ext2fw -p tcp -m tcp --dport 80 -j ACCEPT
 #-A ext2fw -p tcp -m tcp --dport 443 -j ACCEPT
 # Ping (max 2/sec)
--A ext2fw -p icmp -m icmp --icmp-type 8 -m limit --limit 2/sec -j ACCEPT 
+-A ext2fw -p icmp -m icmp --icmp-type 8 -m limit --limit 2/sec -j ACCEPT
 # Drop the rest
 -A ext2fw -j SoftDrop
 
@@ -50,28 +50,28 @@
 # Allow trusted host 4.3.2.1
 -A SSHLimit -s 4.3.2.1 -j ACCEPT
 # The rest limited to 2 connections per 120 seconds per IP
--A SSHLimit -m recent --set --name SSHA --rsource 
--A SSHLimit -m recent --update --seconds 120 --hitcount 3 --name SSHA --rsource -j DROP 
--A SSHLimit -j ACCEPT 
+-A SSHLimit -m recent --set --name SSHA --rsource
+-A SSHLimit -m recent --update --seconds 120 --hitcount 3 --name SSHA --rsource -j DROP
+-A SSHLimit -j ACCEPT
 
 ### Reject a few things, Drop the rest
 # Reject ident (otherwise outbound SMTP connections can take ages)
 -A SoftDrop -p tcp -m tcp --dport 113 -j REJECT --reject-with tcp-reset
-#-A SoftDrop -p icmp -m icmp --icmp-type 3/4 -j ACCEPT 
-#-A SoftDrop -p icmp -m icmp --icmp-type 11 -j ACCEPT 
+#-A SoftDrop -p icmp -m icmp --icmp-type 3/4 -j ACCEPT
+#-A SoftDrop -p icmp -m icmp --icmp-type 11 -j ACCEPT
 -A SoftDrop -j DROP
 
 ### Drop some things, Reject the rest
--A SoftReject -s 255.255.255.255 -j DROP 
--A SoftReject -s 224.0.0.0/240.0.0.0 -j DROP 
--A SoftReject -m pkttype --pkt-type broadcast -j DROP 
--A SoftReject -m pkttype --pkt-type multicast -j DROP 
--A SoftReject -s 255.255.255.255 -j DROP 
--A SoftReject -s 224.0.0.0/240.0.0.0 -j DROP 
--A SoftReject -p tcp -j REJECT --reject-with tcp-reset 
--A SoftReject -p udp -j REJECT --reject-with icmp-port-unreachable 
--A SoftReject -p icmp -j REJECT --reject-with icmp-host-unreachable 
--A SoftReject -j REJECT --reject-with icmp-host-prohibited 
+-A SoftReject -s 255.255.255.255 -j DROP
+-A SoftReject -s 224.0.0.0/240.0.0.0 -j DROP
+-A SoftReject -m pkttype --pkt-type broadcast -j DROP
+-A SoftReject -m pkttype --pkt-type multicast -j DROP
+-A SoftReject -s 255.255.255.255 -j DROP
+-A SoftReject -s 224.0.0.0/240.0.0.0 -j DROP
+-A SoftReject -p tcp -j REJECT --reject-with tcp-reset
+-A SoftReject -p udp -j REJECT --reject-with icmp-port-unreachable
+-A SoftReject -p icmp -j REJECT --reject-with icmp-host-unreachable
+-A SoftReject -j REJECT --reject-with icmp-host-prohibited
 -A SoftReject -j REJECT
 
 COMMIT
