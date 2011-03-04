@@ -1,3 +1,11 @@
+manual-firewall (0.2.0) lucid; urgency=low
+
+  * Modified init sctipt to abort when rules file not present
+  * Modified init script to work on Debian as well as Ubuntu
+  * No longer load FTP nat modules by default
+
+ -- Alex Tomlins <alex@tomlins.org.uk>  Fri, 04 Mar 2011 11:23:36 +0000
+
 manual-firewall (0.1.1-1) lucid; urgency=low
 
   * Renamed init script.
