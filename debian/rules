@@ -38,8 +38,9 @@ install: build
 	# Add here commands to install the package into debian/<packagename>.
 	#$(MAKE) prefix=`pwd`/debian/`dh_listpackages`/usr install
 
-	install -d -o root -g root -m 755 $(build_dir)/etc/firewall
-	install -o root -g root -m 644 firewall/* $(build_dir)/etc/firewall
+	install -d -o root -g root -m 755 $(build_dir)/etc/firewall/rules.d
+	install -o root -g root -m 644 firewall/rules.example* $(build_dir)/etc/firewall
+	install -o root -g root -m 644 firewall/rules.d/* $(build_dir)/etc/firewall/rules.d
 
 # Build architecture-independent files here.
 binary-indep: build install
