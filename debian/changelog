@@ -1,3 +1,9 @@
+manual-firewall (0.3.0) lucid; urgency=low
+
+  * Added extra_rules dir for loading extra rules snippets
+
+ -- Alex Tomlins <alex@tomlins.org.uk>  Wed, 30 Mar 2011 11:02:46 +0100
+
 manual-firewall (0.2.0) lucid; urgency=low
 
   * Modified init sctipt to abort when rules file not present
