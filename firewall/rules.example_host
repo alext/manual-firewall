@@ -32,6 +32,8 @@
 
 -A INPUT -i lo -j ACCEPT
 -A INPUT -i eth0 -j ext2fw
+# Drop the rest
+-A INPUT -j SoftDrop
 
 ### From outside to firewall
 -A ext2fw -m state --state RELATED,ESTABLISHED -j ACCEPT
@@ -42,13 +44,11 @@
 #-A ext2fw -p tcp -m tcp --dport 443 -j ACCEPT
 # Ping (max 2/sec)
 -A ext2fw -p icmp -m icmp --icmp-type 8 -m limit --limit 2/sec -j ACCEPT
-# Drop the rest
--A ext2fw -j SoftDrop
 
 ### External SSH rules
 # These allow some trusted hosts, and then rate-limit everyone else to prevent brute-force attacks
 # Allow trusted host 4.3.2.1
--A SSHLimit -s 4.3.2.1 -j ACCEPT
+#-A SSHLimit -s 4.3.2.1 -j ACCEPT
 # The rest limited to 2 connections per 120 seconds per IP
 -A SSHLimit -m recent --set --name SSHA --rsource
 -A SSHLimit -m recent --update --seconds 120 --hitcount 3 --name SSHA --rsource -j DROP
