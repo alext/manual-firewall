@@ -1,0 +1,9 @@
+# This is a sample set of rules for a web server Assuming one
+# of the sample base rules sets are used
+#
+#
+*filter
+# Web
+-A ext2fw -p tcp -m tcp --dport 80 -j ACCEPT
+-A ext2fw -p tcp -m tcp --dport 443 -j ACCEPT
+COMMIT

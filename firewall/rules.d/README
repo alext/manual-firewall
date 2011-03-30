@@ -1,0 +1,5 @@
+Any .rules files in this directory will be loaded after the main rules file has been loaded.
+
+they will be run as:
+
+iptables-restore -n < file

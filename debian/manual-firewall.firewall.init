@@ -24,6 +24,7 @@ NAME=firewall
 IPTABLES=/sbin/iptables
 
 RULES_FILE=/etc/firewall/rules
+EXTRA_RULES_DIR=/etc/firewall/rules.d
 STOPPED_RULES_FILE=""
 EXTRA_MODULES=""
 SHAPER_DEV=""
@@ -114,6 +115,11 @@ do_start()
 	# Load in rules
 	$IPTABLES-restore < $RULES_FILE
 	RETVAL=$?
+
+	for extra_rules in $EXTRA_RULES_DIR/*.rules; do
+		echo "Adding rules from $extra_rules"
+		$IPTABLES-restore -n < $extra_rules
+	done
 
 	start_shaper
 
