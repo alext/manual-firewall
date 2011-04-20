@@ -116,7 +116,7 @@ do_start()
 	$IPTABLES-restore < $RULES_FILE
 	RETVAL=$?
 
-	for extra_rules in $EXTRA_RULES_DIR/*.rules; do
+	for extra_rules in `find $EXTRA_RULES_DIR -name \*.rules -printf '%p '`; do
 		$IPTABLES-restore -n < $extra_rules
 	done
 
