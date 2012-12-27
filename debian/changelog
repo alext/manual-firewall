@@ -1,3 +1,10 @@
+manual-firewall (0.4.0) precise; urgency=low
+
+  * Add ip6tables support
+  * Update for Precise
+
+ -- Alex Tomlins <alex@tomlins.org.uk>  Thu, 27 Dec 2012 13:47:17 +0000
+
 manual-firewall (0.3.1) lucid; urgency=low
 
   * Fixed error when there are no extra rules files
