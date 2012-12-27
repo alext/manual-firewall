@@ -3,10 +3,10 @@ Section: net
 Priority: extra
 Maintainer: Alex Tomlins <alex@tomlins.org.uk>
 Build-Depends: debhelper (>= 7)
-Standards-Version: 3.8.3
+Standards-Version: 3.9.3
 
 Package: manual-firewall
 Architecture: all
-Depends: ${misc:Depends} iptables
+Depends: ${misc:Depends}, iptables
 Suggests: iproute
 Description: A Manual firewall for people comfortable with writing iptables rules directly.
