@@ -3,6 +3,7 @@
 #
 #Rules to load when stopping the firewall
 #STOPPED_RULES_FILE=
+#STOPPED_RULES6_FILE=
 #
 #Extra kernel modules to load (space separated)
 #EXTRA_MODULES="ip_nat_ftp ip_conntrack_ftp"

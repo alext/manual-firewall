@@ -10,9 +10,6 @@
 ### END INIT INFO
 
 # Author: Alex Tomlins <alex@tomlins.org.uk>
-#
-# Please remove the "Author" lines above and replace them
-# with your own name if you copy and modify this script.
 
 # Do NOT "set -e"
 
@@ -22,10 +19,13 @@ DESC="Manual Firewall"
 NAME=firewall
 
 IPTABLES=/sbin/iptables
+IP6TABLES=/sbin/ip6tables
 
 RULES_FILE=/etc/firewall/rules
+RULES6_FILE=/etc/firewall/rules6
 EXTRA_RULES_DIR=/etc/firewall/rules.d
 STOPPED_RULES_FILE=""
+STOPPED_RULES6_FILE=""
 EXTRA_MODULES=""
 SHAPER_DEV=""
 SHAPER_UPLINK=""
@@ -100,7 +100,7 @@ stop_shaper()
 	if [ -z "$SHAPER_DEV" ]; then
 		return 0
 	fi
-        tc qdisc del dev $SHAPER_DEV root    > /dev/null 2>&1
+	tc qdisc del dev $SHAPER_DEV root    > /dev/null 2>&1
 	#tc qdisc del dev $SHAPER_DEV ingress > /dev/null 2>&1
 }
 #
@@ -108,17 +108,30 @@ stop_shaper()
 #
 do_start()
 {
+	RETVAL=0
 	for mod in $EXTRA_MODULES; do
 		modprobe $mod
 	done
 
-	# Load in rules
-	$IPTABLES-restore < $RULES_FILE
-	RETVAL=$?
+	if [ -f $RULES_FILE ]; then
+		# Load ipv4 rules
+		$IPTABLES-restore < $RULES_FILE
+		let "RETVAL |= $?"
+		for extra_rules in `find $EXTRA_RULES_DIR -name \*.rules -printf '%p '`; do
+			$IPTABLES-restore -n < $extra_rules
+			let "RETVAL |= $?"
+		done
+	fi
 
-	for extra_rules in `find $EXTRA_RULES_DIR -name \*.rules -printf '%p '`; do
-		$IPTABLES-restore -n < $extra_rules
-	done
+	if [ -f $RULES6_FILE ]; then
+		# Load ipv6 rules
+		$IP6TABLES-restore < $RULES6_FILE
+		let "RETVAL |= $?"
+		for extra_rules in `find $EXTRA_RULES_DIR -name \*.rules6 -printf '%p '`; do
+			$IP6TABLES-restore -n < $extra_rules
+			let "RETVAL |= $?"
+		done
+	fi
 
 	start_shaper
 
@@ -133,7 +146,12 @@ do_stop()
 	RETVAL=0
 	if [ -n "$STOPPED_RULES_FILE" ]; then
 		$IPTABLES-restore < $STOPPED_RULES_FILE	
-		RETVAL=$?
+		let "RETVAL |= $?"
+	fi
+
+	if [ -n "$STOPPED_RULES6_FILE" ]; then
+		$IP6TABLES-restore < $STOPPED_RULES6_FILE
+		let "RETVAL |= $?"
 	fi
 
 	stop_shaper
