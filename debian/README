@@ -1,0 +1,6 @@
+manual-firewall for Debian
+--------------------------
+
+Firewall rules from /etc/firewall/rules are loaded using iptables-restore.  Additionally, /etc/firewall/rules.d/*.rules are loaded afterwards using iptables-restore -n.
+
+ -- Alex Tomlins <alex@tomlins.org.uk>  Mon, 27 Dec 2012 14:03:57 +0000
